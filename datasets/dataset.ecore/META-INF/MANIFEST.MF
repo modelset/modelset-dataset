@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Creation of the Ecore Dataset
+Bundle-SymbolicName: dataset.ecore
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: dataset.ecore
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: modelset.datasetcreator;bundle-version="1.0.0"
