@@ -15,4 +15,5 @@ echo "Copying..."
 cp -r README.md datasets/ txt/ /tmp/modelset
 ./bin/copy-files.py
 echo "Zipping..."
-zip -r modelset.zip /tmp/modelset
+cd /tmp
+zip -r modelset.zip modelset
