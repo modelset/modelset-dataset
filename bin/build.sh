@@ -2,13 +2,13 @@
 
 echo "Building the ModelSet package"
 
-pushd .
-cd java-lib/modelset-lib
-# mvn package
-mvn compile
-mvn test exec:java -Dexec.mainClass=modelset.process.ComputeEcoreStats
-mvn test exec:java -Dexec.mainClass=modelset.process.ComputeTxt
-popd
+GENERATE=$1
+
+if [[ $GENERATE = "regenerate" ]]
+  then
+      ./bin/generate.sh      
+fi
+
 
 mkdir /tmp/modelset
 echo "Copying..."
