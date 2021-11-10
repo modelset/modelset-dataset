@@ -8,3 +8,5 @@ wget http://sanchezcuadrado.es/files/modelset/repo-genmymodel-uml.tar.gz
 
 tar xzf repo-ecore-all.tar.gz
 tar xzf repo-genmymodel-uml.tar.gz
+rm repo-ecore-all.tar.gz
+rm repo-genmymodel-uml.tar.gz

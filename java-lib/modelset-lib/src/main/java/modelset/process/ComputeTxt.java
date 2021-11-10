@@ -34,7 +34,7 @@ public class ComputeTxt {
 	public static void main(String[] args) throws Exception {
 		File repoFolder = new File("../../raw-data/repo-ecore-all");
 		File db = new File("../../datasets/dataset.ecore/data/ecore.db");
-		File outputFolder = new File("../../txt/");
+		File outputFolder = new File("../../txt/repo-ecore-all");
 		
 		Factory factory = AnalyserRegistry.INSTANCE.getFactory("ecore");
 		factory.configureEnvironment();
