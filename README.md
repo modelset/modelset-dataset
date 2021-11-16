@@ -58,3 +58,18 @@ You can find some examples in https://github.com/modelset/modelset-apps
   * This requires installing MAR from sources. You can find more information [here](https://github.com/mar-platform/mar)
   * Download MAR source code and follow the [instructions](https://github.com/mar-platform/mar/wiki/Installation-instructions)
   * Execute `mvn install`
+  
+## Citation
+
+If you find this dataset useful, please consider citing its associated paper: https://link.springer.com/article/10.1007/s10270-021-00929-3
+
+```
+@article{lopez2021modelset,
+  title={ModelSet: a dataset for machine learning in model-driven engineering},
+  author={L{\'o}pez, Jos{\'e} Antonio Hern{\'a}ndez and C{\'a}novas Izquierdo, Javier Luis and Cuadrado, Jes{\'u}s S{\'a}nchez},
+  journal={Software and Systems Modeling},
+  pages={1--20},
+  year={2021},
+  publisher={Springer}
+}
+```
