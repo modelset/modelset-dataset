@@ -6,14 +6,15 @@ import java.io.IOException;
 import org.eclipse.emf.ecore.resource.Resource;
 
 import mar.indexer.common.configuration.ModelLoader;
-import mar.validation.IFileInfo;
+import modelset.metadata.AnnotationsValidator.ParsedMetadata;
+import modelset.process.ModelSetFileInfo;
 
 public class ModelSetModel {
 
-	private final IFileInfo file;
+	private final ModelSetFileInfo file;
 	private final ModelType modelType;
 
-	public ModelSetModel(IFileInfo f, ModelType modelType) {
+	public ModelSetModel(ModelSetFileInfo f, ModelType modelType) {
 		this.file = f;
 		this.modelType = modelType;
 	}
@@ -28,6 +29,10 @@ public class ModelSetModel {
 	
 	public File getRelativeFile() {
 		return file.getRelativeFile();
+	}
+	
+	public ParsedMetadata getMetadata() {
+		return file.getMetadata();
 	}
 	
 	public Resource toResource() throws IOException {

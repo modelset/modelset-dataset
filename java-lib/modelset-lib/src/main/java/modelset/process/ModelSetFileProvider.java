@@ -13,26 +13,35 @@ import javax.annotation.Nonnull;
 
 import mar.validation.IFileInfo;
 import mar.validation.IFileProvider;
+import modelset.metadata.AnnotationsValidator;
+import modelset.metadata.AnnotationsValidator.ParsedMetadata;
+import modelset.metadata.AnnotationsValidator.SyntaxError;
 
 public class ModelSetFileProvider implements IFileProvider {
 
-	private List<IFileInfo> files;
+	private List<ModelSetFileInfo> files;
 
 	public ModelSetFileProvider(File db, File repoRoot) throws SQLException {
 		Connection dataset = DriverManager.getConnection(getConnectionString(db));
 		PreparedStatement stm = dataset.prepareStatement("select mo.id, mo.filename, mm.metadata from models mo join metadata mm on mo.id = mm.id");
 		stm.execute();
-		this.files = new ArrayList<IFileInfo>();
+		this.files = new ArrayList<ModelSetFileInfo>();
 		ResultSet rs = stm.getResultSet();
 		while (rs.next()) {
 			String id = rs.getString(1);
 			String filename = rs.getString(2);
-			files.add(new ModelSetFileInfo(id, filename, repoRoot));
+			String metadata = rs.getString(3);
+			try {
+				ParsedMetadata m = AnnotationsValidator.INSTANCE.toMetadata(metadata);
+				files.add(new ModelSetFileInfo(id, filename, repoRoot, m));
+			} catch (SyntaxError e) {
+				e.printStackTrace();
+			}
 		}			
 	}
 
 	@Override
-	public @Nonnull List<? extends IFileInfo> getLocalFiles() {
+	public @Nonnull List<? extends ModelSetFileInfo> getLocalFiles() {
 		return files;
 	}
 	

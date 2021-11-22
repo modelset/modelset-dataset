@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import mar.validation.IFileInfo;
+import modelset.process.ModelSetFileInfo;
 import modelset.process.ModelSetFileProvider;
 
 public class ModelSetDB {
@@ -31,7 +31,7 @@ public class ModelSetDB {
 		return modelType;
 	}
 	
-	private ModelSetModel toModel(IFileInfo f) {
+	private ModelSetModel toModel(ModelSetFileInfo f) {
 		return new ModelSetModel(f, modelType);
 	}
 	
