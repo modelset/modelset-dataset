@@ -35,6 +35,7 @@ public class ModelSetFileProvider implements IFileProvider {
 				ParsedMetadata m = AnnotationsValidator.INSTANCE.toMetadata(metadata);
 				files.add(new ModelSetFileInfo(id, filename, repoRoot, m));
 			} catch (SyntaxError e) {
+				System.err.println("Error for " + id + ": [" + metadata + "]");
 				e.printStackTrace();
 			}
 		}			

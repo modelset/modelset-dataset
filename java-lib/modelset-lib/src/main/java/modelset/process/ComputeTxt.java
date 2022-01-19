@@ -99,12 +99,7 @@ public class ComputeTxt {
 
 		@Override
 		public IStemmer getStemmer() {
-			return new IStemmer() {				
-				@Override
-				public String stem(String s) {
-					return s;
-				}
-			};
+			return IStemmer.IDENTITY;
 		}
 
 		@Override
@@ -119,7 +114,7 @@ public class ComputeTxt {
 
 		@Override
 		public ITokenizer getTokenizer() {
-			return new WhitespaceTokenizer();
+			return ITokenizer.IDENTITY;
 		}
 
 		@Override
