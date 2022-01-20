@@ -6,28 +6,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 
 import mar.indexer.common.configuration.ModelLoader;
-import mar.model2graph.IMetaFilter;
 import mar.model2text.Model2TextUtils;
-import mar.paths.ListofPaths;
-import mar.paths.Path;
-import mar.paths.PathFactory;
-import mar.paths.stemming.IStemmer;
-import mar.paths.stemming.IStopWords;
-import mar.paths.stemming.ITokenizer;
-import mar.paths.stemming.WhitespaceTokenizer;
 import mar.validation.AnalyserRegistry;
 import mar.validation.IFileInfo;
 import mar.validation.ResourceAnalyser.Factory;
@@ -68,59 +53,5 @@ public class ComputeTxt {
 			
 			IOUtils.write(content.getBytes(), new FileOutputStream(outputFile.toFile()));
 		}
-	}
-	
-	private static class SimpleFilter implements IMetaFilter {
-	
-		private static Set<String> names = new HashSet<>();
-		static {
-			names.add("nsuri");
-			names.add("nsprefix");
-		}
-
-		@Override
-		public boolean passFilerStructural(EObject f) {
-			if (f instanceof EAttribute) {
-				String attrName = ((EAttribute) f).getName();
-				if (names.contains(attrName.toLowerCase()))
-					return false;
-			}
-			return true;
-		}
-
-		@Override
-		public boolean passFilterObject(EObject o) {
-			return true;
-		}
-		
-	}
-	
-	private static class SimplePathFactory implements PathFactory {
-
-		@Override
-		public IStemmer getStemmer() {
-			return IStemmer.IDENTITY;
-		}
-
-		@Override
-		public IStopWords getStopWords() {
-			return new IStopWords() {
-				@Override
-				public boolean isStopWord(@Nonnull String s) {
-					return false;
-				}				
-			};
-		}
-
-		@Override
-		public ITokenizer getTokenizer() {
-			return ITokenizer.IDENTITY;
-		}
-
-		@Override
-		public ListofPaths newPathSet(List<? extends Path> arg0) {
-			throw new UnsupportedOperationException();
-		}
-		
 	}
 }
