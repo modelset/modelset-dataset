@@ -35,7 +35,7 @@ cp datasets/dataset.genmymodel/data/genmymodel.db /tmp/modelset/datasets/dataset
 cp datasets/dataset.genmymodel/META-INF /tmp/modelset/datasets/dataset.genmymodel -r
 cp datasets/dataset.genmymodel/src/dataset/genmymodel/ValidateMetadata.java  /tmp/modelset/datasets/dataset.genmymodel/src/dataset/genmymodel/ValidateMetadata.java 
 
-cp -r README.md txt/ /tmp/modelset
+cp -r README.md txt/ graph/ /tmp/modelset
 ./bin/copy-files.py .
 echo "Zipping..."
 cd /tmp
