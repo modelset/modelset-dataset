@@ -8,4 +8,5 @@ cd java-lib/modelset-lib
 mvn compile
 mvn test exec:java -Dexec.mainClass=modelset.process.ComputeEcoreStats
 mvn test exec:java -Dexec.mainClass=modelset.process.ComputeTxt
+mvn test exec:java -Dexec.mainClass=modelset.process.ComputeGraph
 popd
