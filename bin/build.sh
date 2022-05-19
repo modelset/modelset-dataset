@@ -30,6 +30,7 @@ cp datasets/dataset.ecore/src/dataset/ecore/ValidateMetadata.java /tmp/modelset/
 cp datasets/dataset.genmymodel/.project /tmp/modelset/datasets/dataset.genmymodel
 cp datasets/dataset.genmymodel/build.properties /tmp/modelset/datasets/dataset.genmymodel
 cp datasets/dataset.genmymodel/data/genmymodel.db /tmp/modelset/datasets/dataset.genmymodel/data/genmymodel.db
+cp datasets/dataset.genmymodel/data/analysis.db   /tmp/modelset/datasets/dataset.genmymodel/data/analysis.db
 # cp dataset.genmymodel/data/analysis.db /tmp/modelset/datasets/dataset.genmymodel/data/analysis.db
 #cp datasets/dataset.genmymodel/.settings /tmp/modelset/datasets/dataset.genmymodel -r
 cp datasets/dataset.genmymodel/META-INF /tmp/modelset/datasets/dataset.genmymodel -r
