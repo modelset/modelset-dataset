@@ -2,9 +2,20 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>modelset</groupId>
+	<groupId>io.github.models-lab.modelset</groupId>
 	<artifactId>modelset-lib</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+
+	<repositories>
+		<repository>
+			<id>oss-sonatype</id>
+			<name>oss-sonatype</name>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots//</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -39,7 +50,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>ml2.mar</groupId>
+			<groupId>io.github.models-lab.mar</groupId>
 			<artifactId>mar-modelling</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
