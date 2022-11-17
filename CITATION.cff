@@ -8,6 +8,7 @@ authors:
   orcid: "https://orcid.org/0000-0002-2326-1700"
 - family-names: "Sánchez Cuadrado"
   given-names: "Jesús"
+  orcid: "https://orcid.org/0000-0001-9755-5616"
 title: "ModelSet: a dataset for machine learning in model-driven engineering"
 version: 1.0.0
 doi: 10.1007/s10270-021-00929-3
@@ -23,6 +24,7 @@ preferred-citation:
       orcid: "https://orcid.org/0000-0002-2326-1700"
     - family-names: "Sánchez Cuadrado"
       given-names: "Jesús"
+      orcid: "https://orcid.org/0000-0001-9755-5616"
   doi: "10.1007/s10270-021-00929-3"
   journal: "Softw. Syst. Model."
   start: 967

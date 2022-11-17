@@ -8,9 +8,9 @@ We pledge to act and interact in ways that contribute to an open, welcoming, div
 ## Need Help?
 If ANY behavior makes you uncomfortable, or you believe it breaches the intent of this code of conduct, please contact a project maintainer:
 
-* [José Antonio Hernández](https://github.com/jlcanovas/) (he/him)
+* [José Antonio Hernández](https://github.com/antolin1/) (he/him)
 * [Javier Cánovas](https://github.com/jlcanovas/) (he/him)
-* [Jesús Sánchez](https://github.com/jlcanovas/) (he/him)
+* [Jesús Sánchez](https://github.com/jesusc/) (he/him)
 
 ---
 
@@ -60,9 +60,9 @@ The Code of Conduct, and the project leaders, can only address behavior in the p
 ## Enforcement
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project maintainers at:
 
-* [José Antonio Hernández](https://github.com/jlcanovas/) (he/him)
+* [José Antonio Hernández](https://github.com/antolin1/) (he/him)
 * [Javier Cánovas](https://github.com/jlcanovas/) (he/him)
-* [Jesús Sánchez](https://github.com/jlcanovas/) (he/him)
+* [Jesús Sánchez](https://github.com/jesusc/) (he/him)
 
 Complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances. 
 

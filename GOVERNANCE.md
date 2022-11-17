@@ -30,7 +30,7 @@ Both collaborators and project maintainers may propose pull requests. When a col
 
 Pull requests should comply with the template provided. The assignment of labels and assignees to the pull request is the responsibility of the project maintainers.
 
-The group of project maintainers commit to give an answer to any pull request in a period of time of **48 hours**. 
+The group of project maintainers commit to give an answer to any pull request in a period of time of **1 week**. 
 
 The decision of accepting (or rejecting) a pull request will be taken by the group of project maintainers. The decision will be based on the following criteria:
 
