@@ -1,8 +1,37 @@
-@article{lopez2021modelset,
-  title={ModelSet: a dataset for machine learning in model-driven engineering},
-  author={L{\'o}pez, Jos{\'e} Antonio Hern{\'a}ndez and C{\'a}novas Izquierdo, Javier Luis and Cuadrado, Jes{\'u}s S{\'a}nchez},
-  journal={Software and Systems Modeling},
-  pages={1--20},
-  year={2021},
-  publisher={Springer}
-}
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Hernández López"
+  given-names: "José Antonio"
+  orcid: "https://orcid.org/0000-0003-2439-2136"
+- family-names: "Cánovas Izquierdo"
+  given-names: "Javier Luis"
+  orcid: "https://orcid.org/0000-0002-2326-1700"
+- family-names: "Sánchez Cuadrado"
+  given-names: "Jesús"
+  orcid: "https://orcid.org/0000-0001-9755-5616"
+title: "ModelSet: a dataset for machine learning in model-driven engineering"
+version: 1.0.0
+doi: 10.1007/s10270-021-00929-3
+date-released: 2022-06-23
+url: "https://github.com/modelset/modelset-dataset"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Hernández López"
+      given-names: "José Antonio"
+      orcid: "https://orcid.org/0000-0003-2439-2136"
+    - family-names: "Cánovas Izquierdo"
+      given-names: "Javier Luis"
+      orcid: "https://orcid.org/0000-0002-2326-1700"
+    - family-names: "Sánchez Cuadrado"
+      given-names: "Jesús"
+      orcid: "https://orcid.org/0000-0001-9755-5616"
+  doi: "10.1007/s10270-021-00929-3"
+  journal: "Softw. Syst. Model."
+  start: 967
+  end: 986
+  title: "ModelSet: a dataset for machine learning in model-driven engineering"
+  issue: 3
+  volume: 21
+  year: 2022
