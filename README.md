@@ -66,7 +66,7 @@ while (rs.next()) {
 }			
 ```
 
-### Querying ModelSet in Python
+### Using ModelSet in Python
 
 To use ModelSet in a typical Python/Jupyter setting, we recommend you to use the [modelset-py](https://github.com/modelset/modelset-py) Python library we have developed. Visit the corresponding [repository](https://github.com/modelset/modelset-py) for more information.
 
@@ -82,12 +82,6 @@ To create the ModelSet release, you have to follow these steps:
 
 1. Execute `./bin/download-data.sh` to recover the model files which will be stored in the `raw-data` folder. These files are not stored here as they have already published in existing GitHub repositories. 
 2. Execute `./bin/generate.sh` to generate additional artifacts.
-
-    2.1. This requires installing MAR from sources. You can find more information [here](https://github.com/mar-platform/mar)
-
-    2.2. Download MAR source code and follow the [instructions](https://github.com/mar-platform/mar/wiki/Installation-instructions)
-
-    2.3. Execute `mvn install`
 3. Execute `./bin/build.sh` to build the ModelSet release package.
 4. The ModelSet release package will have the name `modelset.zip`.
 
