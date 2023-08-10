@@ -26,26 +26,38 @@ import mar.validation.ResourceAnalyser.Factory;
 
 public class ComputeEmfatic {
 
+	private static enum Mode {
+		TOKEN,
+		LINE
+	}
+	
 	public static void main(String[] args) throws Exception {
-		if (args.length < 1) {
-			System.out.println("./ComputeEmfatic output-file");
+		if (args.length < 2) {
+			System.out.println("./ComputeEmfatic mode output-file");
 			return;
 		}
 		
-		File outputFile = new File(args[0]);
+		Mode mode;
+		if (args[0].contains("line")) {
+			mode = Mode.LINE;
+		} else {
+			mode = Mode.TOKEN;
+		}
+		
+		File outputFile = new File(args[1]);
 		
 		File repoFolder = new File("../../raw-data/repo-ecore-all");
 		File db = new File("../../datasets/dataset.ecore/data/ecore.db");
 
 		ModelLoader loader = ModelLoader.DEFAULT;
-		generateTokenization(repoFolder, db, outputFile, "ecore", loader);	
+		generateTokenization(repoFolder, db, outputFile, "ecore", mode, loader);	
 	}
 
-	private static void generateTokenization(File repoFolder, File db, File outputFile, String modelType, ModelLoader loader) throws SQLException, IOException {
+	private static void generateTokenization(File repoFolder, File db, File outputFile, String modelType, Mode mode, ModelLoader loader) throws SQLException, IOException {
 		Factory factory = AnalyserRegistry.INSTANCE.getFactory(modelType);
 		factory.configureEnvironment();
 		
-		CodeXGlueOutput output = new CodeXGlueOutput();
+		CodeXGlueOutput output = new CodeXGlueOutput(mode);
 		
 		ModelSetFileProvider provider = new ModelSetFileProvider(db, repoFolder);
 		for (IFileInfo f : provider.getLocalFiles()) {
@@ -76,7 +88,7 @@ public class ComputeEmfatic {
 		//@namespace(uri="AnURI", prefix="uri-name")
 		//package ecore;
 		convertNamespace(obj, output);
-		output.token("package").token(obj.getName());		
+		output.token("package").token(obj.getName()).token(";").newLine();
 		convertPackageContents(obj, output);
 	}
 
@@ -95,14 +107,15 @@ public class ComputeEmfatic {
 	private static void convertNamespace(EPackage obj, CodeXGlueOutput output) {
 		output.token("@").token("namespace").token("(").
 			token("uri").token("=").stringToken(obj.getNsURI()).token(",").
-			token("prefix").token("=").stringToken(obj.getNsPrefix()).token(")");
+			token("prefix").token("=").stringToken(obj.getNsPrefix()).token(")").
+			newLine();
 	}
 
 	private static void convertPackage(EPackage pkg, CodeXGlueOutput output) {
 		convertNamespace(pkg, output);
-		output.token("package").token(pkg.getName()).token("{");
+		output.token("package").token(pkg.getName()).token("{").newLine();
 			convertPackageContents(pkg, output);
-		output.token("}");
+		output.token("}").newLine();;
 	}
 
 	// (abstract?) class A { }
@@ -121,9 +134,9 @@ public class ComputeEmfatic {
 			}
 		}
 		
-		output.token("{");
+		output.token("{").newLine();
 		convertClassContents(c, output);
-		output.token("}");
+		output.token("}").newLine();
 	}
 
 	private static void convertClassContents(EClass c, CodeXGlueOutput output) {
@@ -146,6 +159,7 @@ public class ComputeEmfatic {
 		output.token(card);
 		output.token(attr.getName());
 		output.token(";");
+		output.newLine();
 	}
 
 	private static void convertReference(EReference ref, CodeXGlueOutput output) {
@@ -161,7 +175,7 @@ public class ComputeEmfatic {
 		output.token(card);
 		output.token(ref.getName());
 		output.token(";");
-		
+		output.newLine();		
 	}
 
 	private static String toEmfaticType(EDataType dt) {
@@ -269,7 +283,18 @@ public class ComputeEmfatic {
 	private static class CodeXGlueOutput {
 
 		private final StringBuilder builder = new StringBuilder();
+		private final Mode mode;
 		
+		public CodeXGlueOutput(Mode mode) {
+			this.mode = mode;
+		}
+
+		public void newLine() {
+			if (mode == Mode.LINE) {
+				builder.append(" <EOL>");
+			}
+		}
+
 		public PieceOfCode start() {
 			builder.append(" <s>");
 			return new PieceOfCode(this);
