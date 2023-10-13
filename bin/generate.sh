@@ -11,4 +11,5 @@ mvn test exec:java -Dexec.mainClass=modelset.process.ComputeUMLStats
 mvn test exec:java -Dexec.mainClass=modelset.process.ComputeTxt
 mvn test exec:java -Dexec.mainClass=modelset.process.ComputeGraph
 mvn test exec:java -Dexec.mainClass=modelset.process.ComputeUMLGraph
+mvn test exec:java -Dexec.mainClass=modelset.process.ComputeDuplicates
 popd

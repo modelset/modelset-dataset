@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.models-lab.modelset</groupId>
 	<artifactId>modelset-lib</artifactId>
@@ -54,6 +52,24 @@
 			<artifactId>mar-modelling</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+
+		<dependency>
+			<groupId>io.github.models-lab.mar</groupId>
+			<artifactId>mar-modelling-transformations</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<!-- This is needed by mar-modelling-transformations. For some reason this dependency is not
+		     available transitevly. Thus, the following command fails:
+		     
+		     	 mvn test exec:java -Dexec.mainClass=modelset.process.ComputeDuplicates
+		-->		    
+		<dependency>
+			<groupId>org.agrona</groupId>
+			<artifactId>agrona</artifactId>
+			<version>1.15.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<distributionManagement>
