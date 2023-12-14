@@ -174,6 +174,10 @@ public class Model2Graph {
 					
 					// take the reference
 					if (f instanceof EReference && !f.isMany()) {
+						// FIXME: Accessing this property gives class org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl cannot be cast to class org.eclipse.uml2.uml.Package
+						if ("importedPackage".equals(f.getName()))
+							continue;
+
 						EObject element = (EObject) obj.eGet(f);
 						// ignore the class
 						if (element != null &&!mf.passFilterObject(element))

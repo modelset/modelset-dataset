@@ -44,6 +44,8 @@ public class ComputeUMLGraph {
 			java.nio.file.Path outputFile = graphFolder.resolve(FilenameUtils.removeExtension(fname) + ".json");
 			
 			IOUtils.write(content.getBytes(), new FileOutputStream(outputFile.toFile()));
+			
+			r.unload();
 		}		
 	}	
 	
