@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -92,6 +93,14 @@ public class DuplicationDatabase implements AutoCloseable {
 				preparedStatement.setString(3, runId);
 				preparedStatement.execute();
 			}
+		}		
+	}
+
+	public boolean isGroupRepresentive(String modelId) throws SQLException {
+		try(PreparedStatement preparedStatement = connection.prepareStatement("SELECT model_id FROM duplicates WHERE model_id = ?")) {
+			preparedStatement.setString(1, modelId);
+			ResultSet rs = preparedStatement.executeQuery();
+			return rs.next();
 		}		
 	}
 

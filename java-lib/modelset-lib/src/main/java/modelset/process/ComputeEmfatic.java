@@ -32,8 +32,8 @@ public class ComputeEmfatic {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		if (args.length < 2) {
-			System.out.println("./ComputeEmfatic mode output-file");
+		if (args.length < 3) {
+			System.out.println("./ComputeEmfatic mode dups/no-dups output-file");
 			return;
 		}
 		
@@ -44,34 +44,53 @@ public class ComputeEmfatic {
 			mode = Mode.TOKEN;
 		}
 		
-		File outputFile = new File(args[1]);
+		boolean filterDuplicates = false;
+		if (args[1].contains("no-dups")) {
+			filterDuplicates = true;
+		}
+		
+		
+		File outputFile = new File(args[2]);
 		
 		File repoFolder = new File("../../raw-data/repo-ecore-all");
 		File db = new File("../../datasets/dataset.ecore/data/ecore.db");
-
+		DuplicationDatabase dupDb = null;
+		if (filterDuplicates) {
+			dupDb = new DuplicationDatabase(new File("../../dups/ecore-dups.db"));
+		}
+		
 		ModelLoader loader = ModelLoader.DEFAULT;
-		generateTokenization(repoFolder, db, outputFile, "ecore", mode, loader);	
+		generateTokenization(repoFolder, db, outputFile, "ecore", mode, dupDb, loader);
+		
+		dupDb.close();
 	}
 
-	private static void generateTokenization(File repoFolder, File db, File outputFile, String modelType, Mode mode, ModelLoader loader) throws SQLException, IOException {
+	private static void generateTokenization(File repoFolder, File db, File outputFile, String modelType, Mode mode, DuplicationDatabase dupDb, ModelLoader loader) throws SQLException, IOException {
 		Factory factory = AnalyserRegistry.INSTANCE.getFactory(modelType);
 		factory.configureEnvironment();
 		
-		CodeXGlueOutput output = new CodeXGlueOutput(mode);
-		
+
+		CodeXGlueOutput all = new CodeXGlueOutput(mode);				
 		ModelSetFileProvider provider = new ModelSetFileProvider(db, repoFolder);
 		for (IFileInfo f : provider.getLocalFiles()) {
+			if (dupDb != null) {
+				if (! dupDb.isGroupRepresentive(f.getModelId()))
+					continue;
+			}
+			
 			System.out.println(f.getRelativePath());
 			Resource r = loader.load(f.getFullFile());
 
 			try {
-				convertToEmfaticTokens(r, output);	
+				CodeXGlueOutput output = new CodeXGlueOutput(mode);
+				convertToEmfaticTokens(r, output);
+				all.merge(output);
 			} catch (InvalidModelException e) {
 				System.out.println("Invalid model: " + f);
 			}
 		}	
 				
-		Files.write(output.builder.toString().getBytes(), outputFile);
+		Files.write(all.builder.toString().getBytes(), outputFile);
 	}	
 	
 	private static void convertToEmfaticTokens(Resource r, CodeXGlueOutput output) {
@@ -289,6 +308,10 @@ public class ComputeEmfatic {
 			this.mode = mode;
 		}
 
+		public void merge(CodeXGlueOutput output) {
+			builder.append(output.builder);
+		}
+
 		public void newLine() {
 			if (mode == Mode.LINE) {
 				builder.append(" <EOL>");
@@ -335,6 +358,10 @@ public class ComputeEmfatic {
 	
 	private static class InvalidModelException extends RuntimeException {
 		private static final long serialVersionUID = 5490556461546321329L;
+		
+	}
+	
+	public static class JsonDatasetModel {
 		
 	}
 }
