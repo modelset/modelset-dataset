@@ -3,6 +3,8 @@ package modelset.process;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
@@ -17,6 +19,7 @@ import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 
 import mar.indexer.common.configuration.ModelLoader;
@@ -28,7 +31,8 @@ public class ComputeEmfatic {
 
 	private static enum Mode {
 		TOKEN,
-		LINE
+		LINE,
+		FULL
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -40,8 +44,10 @@ public class ComputeEmfatic {
 		Mode mode;
 		if (args[0].contains("line")) {
 			mode = Mode.LINE;
-		} else {
+		} else if (args[0].contains("token")) {
 			mode = Mode.TOKEN;
+		} else {
+			mode = Mode.FULL;
 		}
 		
 		boolean filterDuplicates = false;
@@ -69,7 +75,8 @@ public class ComputeEmfatic {
 		Factory factory = AnalyserRegistry.INSTANCE.getFactory(modelType);
 		factory.configureEnvironment();
 		
-
+		Map<String, Object> result = new HashMap<>();
+		
 		CodeXGlueOutput all = new CodeXGlueOutput(mode);				
 		ModelSetFileProvider provider = new ModelSetFileProvider(db, repoFolder);
 		for (IFileInfo f : provider.getLocalFiles()) {
@@ -84,13 +91,26 @@ public class ComputeEmfatic {
 			try {
 				CodeXGlueOutput output = new CodeXGlueOutput(mode);
 				convertToEmfaticTokens(r, output);
-				all.merge(output);
+				
+				if (mode == Mode.FULL) {
+					Map<String, Object> model = new HashMap<>();
+					model.put("raw", output.builder.toString());
+					result.put(f.getModelId(), model);
+				} else {
+					all.merge(output);
+				}
 			} catch (InvalidModelException e) {
 				System.out.println("Invalid model: " + f);
 			}
 		}	
 				
-		Files.write(all.builder.toString().getBytes(), outputFile);
+		
+		if (mode == Mode.FULL) {
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.writer().writeValue(outputFile, result);
+		} else {
+			Files.write(all.builder.toString().getBytes(), outputFile);
+		}
 	}	
 	
 	private static void convertToEmfaticTokens(Resource r, CodeXGlueOutput output) {
@@ -107,7 +127,7 @@ public class ComputeEmfatic {
 		//@namespace(uri="AnURI", prefix="uri-name")
 		//package ecore;
 		convertNamespace(obj, output);
-		output.token("package").token(obj.getName()).token(";").newLine();
+		output.token("package").w().token(obj.getName()).token(";").newLine();
 		convertPackageContents(obj, output);
 	}
 
@@ -125,37 +145,37 @@ public class ComputeEmfatic {
 
 	private static void convertNamespace(EPackage obj, CodeXGlueOutput output) {
 		output.token("@").token("namespace").token("(").
-			token("uri").token("=").stringToken(obj.getNsURI()).token(",").
+			token("uri").token("=").stringToken(obj.getNsURI()).token(",").w().
 			token("prefix").token("=").stringToken(obj.getNsPrefix()).token(")").
 			newLine();
 	}
 
 	private static void convertPackage(EPackage pkg, CodeXGlueOutput output) {
 		convertNamespace(pkg, output);
-		output.token("package").token(pkg.getName()).token("{").newLine();
+		output.token("package").w().token(pkg.getName()).w().token("{").newLine().indent();
 			convertPackageContents(pkg, output);
-		output.token("}").newLine();;
+		output.unindent().token("}").newLine();
 	}
 
 	// (abstract?) class A { }
 	private static void convertClass(EClass c, CodeXGlueOutput output) {
 		if (c.isAbstract())
-			output.token("abstract");
-		output.token("class").token(nonNull(c.getName()));
+			output.token("abstract").w();
+		output.token("class").w().token(nonNull(c.getName())).w();
 		
 		if (c.getESuperTypes().size() > 0) {
-			output.token("extends");
+			output.token("extends").w();
 			for (int i = 0, len = c.getESuperTypes().size(); i < len; i++) {
 				EClass sup = c.getESuperTypes().get(i);
 				output.token(nonNull(sup.getName()));
 				if (i + 1 != len)
-					output.token(",");
+					output.token(",").w();
 			}
 		}
 		
-		output.token("{").newLine();
+		output.token("{").newLine().indent();
 		convertClassContents(c, output);
-		output.token("}").newLine();
+		output.unindent().token("}").newLine();
 	}
 
 	private static void convertClassContents(EClass c, CodeXGlueOutput output) {
@@ -171,11 +191,11 @@ public class ComputeEmfatic {
 	private static void convertAttribute(EAttribute attr, CodeXGlueOutput output) {
 		EDataType dt = attr.getEAttributeType();
 		String type = toEmfaticType(dt);
-		String card = toEmfaticCardinality(attr);
+		String card = applyMode(output.mode, toEmfaticCardinality(attr));
 
-		output.token("attr");
+		output.token("attr").w();
 		output.token(type);
-		output.token(card);
+		output.token(card).w();
 		output.token(attr.getName());
 		output.token(";");
 		output.newLine();
@@ -187,11 +207,11 @@ public class ComputeEmfatic {
 		
 		String referencedName = nonNull(referenced.getName());
 		String refType = ref.isContainment() ? "val" : "ref";
-		String card = toEmfaticCardinality(ref);
+		String card = applyMode(output.mode, toEmfaticCardinality(ref));
 		
-		output.token(refType);
+		output.token(refType).w();
 		output.token(referencedName);
-		output.token(card);
+		output.token(card).w();
 		output.token(ref.getName());
 		output.token(";");
 		output.newLine();		
@@ -290,6 +310,9 @@ public class ComputeEmfatic {
 		throw new UnsupportedOperationException(t.toString());
 	}
 
+	private static String applyMode(Mode mode, String cardinalityString) {
+		return mode == Mode.FULL ? cardinalityString.replace(" ", "") : cardinalityString;
+	}
 	
 	private static <T> T nonNull(T obj) {
 		if (obj == null)
@@ -303,23 +326,43 @@ public class ComputeEmfatic {
 
 		private final StringBuilder builder = new StringBuilder();
 		private final Mode mode;
+		int indent = 0;
 		
 		public CodeXGlueOutput(Mode mode) {
 			this.mode = mode;
+		}
+
+		public CodeXGlueOutput w() {
+			if (mode == Mode.FULL)
+				builder.append(" ");
+			return this;
 		}
 
 		public void merge(CodeXGlueOutput output) {
 			builder.append(output.builder);
 		}
 
-		public void newLine() {
+		public CodeXGlueOutput newLine() {
 			if (mode == Mode.LINE) {
 				builder.append(" <EOL>");
+			} else if (mode == Mode.FULL) {
+				builder.append("\n");
 			}
+			return this;
+		}
+		
+		public CodeXGlueOutput indent() {
+			indent++;
+			return this;
 		}
 
+		public CodeXGlueOutput unindent() {
+			indent--;
+			return this;
+		}
 		public PieceOfCode start() {
-			builder.append(" <s>");
+			if (mode != Mode.FULL)
+				builder.append(" <s>");
 			return new PieceOfCode(this);
 		}
 		
@@ -327,17 +370,34 @@ public class ComputeEmfatic {
 			if (string.isEmpty())
 				return this;
 			
-			builder.append(" ");
+			doIndentIfNeeded();
+			
+			if (mode != Mode.FULL)
+				builder.append(" ");
 			builder.append(string);
 			return this;
 		}
 
 		public CodeXGlueOutput stringToken(String str) {
-			builder.append(" ");
+			doIndentIfNeeded();
+
+			if (mode != Mode.FULL)
+				builder.append(" ");
 			builder.append("\"");
 			builder.append(str);
 			builder.append("\"");
 			return this;
+		}
+
+		private void doIndentIfNeeded() {
+			int size = builder.length();
+			if (mode == Mode.FULL && size > 0) {
+				char last = builder.charAt(size - 1);
+				if (last == '\n') {
+					for(int i = 0; i < indent; i++)
+						builder.append("\t");					
+				}
+			}
 		}		
 	}
 	
@@ -351,8 +411,10 @@ public class ComputeEmfatic {
 
 		@Override
 		public void close() {
-			output.builder.append(" ");
-			output.builder.append("</s>\n");
+			if (output.mode != Mode.FULL) {
+	 			output.builder.append(" ");
+				output.builder.append("</s>\n");
+			}
 		}
 	}
 	
