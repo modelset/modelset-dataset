@@ -97,7 +97,7 @@ public class DuplicationDatabase implements AutoCloseable {
 	}
 
 	public boolean isGroupRepresentive(String modelId) throws SQLException {
-		try(PreparedStatement preparedStatement = connection.prepareStatement("SELECT model_id FROM duplicates WHERE model_id = ?")) {
+		try(PreparedStatement preparedStatement = connection.prepareStatement("SELECT model_id FROM duplicates WHERE group_id = ?")) {
 			preparedStatement.setString(1, modelId);
 			ResultSet rs = preparedStatement.executeQuery();
 			return rs.next();

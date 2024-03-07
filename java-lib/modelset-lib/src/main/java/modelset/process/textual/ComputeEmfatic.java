@@ -1,10 +1,9 @@
-package modelset.process;
+package modelset.process.textual;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
@@ -19,101 +18,30 @@ import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.Files;
-
 import mar.indexer.common.configuration.ModelLoader;
 import mar.validation.AnalyserRegistry;
-import mar.validation.IFileInfo;
 import mar.validation.ResourceAnalyser.Factory;
+import modelset.process.textual.CodeXGlueOutput.Mode;
+import modelset.process.textual.CodeXGlueOutput.PieceOfCode;
 
-public class ComputeEmfatic {
-
-	private static enum Mode {
-		TOKEN,
-		LINE,
-		FULL
-	}
+public class ComputeEmfatic extends AbstractSyntaxPrinter<Resource> {
 	
 	public static void main(String[] args) throws Exception {
-		if (args.length < 3) {
-			System.out.println("./ComputeEmfatic mode dups/no-dups output-file");
-			return;
-		}
-		
-		Mode mode;
-		if (args[0].contains("line")) {
-			mode = Mode.LINE;
-		} else if (args[0].contains("token")) {
-			mode = Mode.TOKEN;
-		} else {
-			mode = Mode.FULL;
-		}
-		
-		boolean filterDuplicates = false;
-		if (args[1].contains("no-dups")) {
-			filterDuplicates = true;
-		}
-		
-		
-		File outputFile = new File(args[2]);
-		
-		File repoFolder = new File("../../raw-data/repo-ecore-all");
-		File db = new File("../../datasets/dataset.ecore/data/ecore.db");
-		DuplicationDatabase dupDb = null;
-		if (filterDuplicates) {
-			dupDb = new DuplicationDatabase(new File("../../dups/ecore-dups.db"));
-		}
-		
-		ModelLoader loader = ModelLoader.DEFAULT;
-		generateTokenization(repoFolder, db, outputFile, "ecore", mode, dupDb, loader);
-		
-		dupDb.close();
-	}
-
-	private static void generateTokenization(File repoFolder, File db, File outputFile, String modelType, Mode mode, DuplicationDatabase dupDb, ModelLoader loader) throws SQLException, IOException {
-		Factory factory = AnalyserRegistry.INSTANCE.getFactory(modelType);
+		Factory factory = AnalyserRegistry.INSTANCE.getFactory("ecore");
 		factory.configureEnvironment();
 		
-		Map<String, Object> result = new HashMap<>();
-		
-		CodeXGlueOutput all = new CodeXGlueOutput(mode);				
-		ModelSetFileProvider provider = new ModelSetFileProvider(db, repoFolder);
-		for (IFileInfo f : provider.getLocalFiles()) {
-			if (dupDb != null) {
-				if (! dupDb.isGroupRepresentive(f.getModelId()))
-					continue;
-			}
-			
-			System.out.println(f.getRelativePath());
-			Resource r = loader.load(f.getFullFile());
+		new ComputeEmfatic().runMain("ComputeEmfatic", Dataset.ECORE, args);
+	}
 
-			try {
-				CodeXGlueOutput output = new CodeXGlueOutput(mode);
-				convertToEmfaticTokens(r, output);
-				
-				if (mode == Mode.FULL) {
-					Map<String, Object> model = new HashMap<>();
-					model.put("raw", output.builder.toString());
-					result.put(f.getModelId(), model);
-				} else {
-					all.merge(output);
-				}
-			} catch (InvalidModelException e) {
-				System.out.println("Invalid model: " + f);
-			}
-		}	
-				
-		
-		if (mode == Mode.FULL) {
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.writer().writeValue(outputFile, result);
-		} else {
-			Files.write(all.builder.toString().getBytes(), outputFile);
-		}
-	}	
+
+	@Override
+	protected List<Resource> getElements(File f) throws IOException {
+		Resource r = ModelLoader.DEFAULT.load(f);
+		return Collections.singletonList(r);
+	}
 	
-	private static void convertToEmfaticTokens(Resource r, CodeXGlueOutput output) {
+	@Override
+	protected void convertToTokens(Resource r, CodeXGlueOutput output) {
 		try(PieceOfCode c = output.start()) {
 			for (EObject obj : r.getContents()) {
 				if (obj instanceof EPackage) {
@@ -314,116 +242,4 @@ public class ComputeEmfatic {
 		return mode == Mode.FULL ? cardinalityString.replace(" ", "") : cardinalityString;
 	}
 	
-	private static <T> T nonNull(T obj) {
-		if (obj == null)
-			throw new InvalidModelException();
-		return obj;
-	}
-
-
-	// https://github.com/microsoft/CodeXGLUE/tree/main/Code-Code/CodeCompletion-token
-	private static class CodeXGlueOutput {
-
-		private final StringBuilder builder = new StringBuilder();
-		private final Mode mode;
-		int indent = 0;
-		
-		public CodeXGlueOutput(Mode mode) {
-			this.mode = mode;
-		}
-
-		public CodeXGlueOutput w() {
-			if (mode == Mode.FULL)
-				builder.append(" ");
-			return this;
-		}
-
-		public void merge(CodeXGlueOutput output) {
-			builder.append(output.builder);
-		}
-
-		public CodeXGlueOutput newLine() {
-			if (mode == Mode.LINE) {
-				builder.append(" <EOL>");
-			} else if (mode == Mode.FULL) {
-				builder.append("\n");
-			}
-			return this;
-		}
-		
-		public CodeXGlueOutput indent() {
-			indent++;
-			return this;
-		}
-
-		public CodeXGlueOutput unindent() {
-			indent--;
-			return this;
-		}
-		public PieceOfCode start() {
-			if (mode != Mode.FULL)
-				builder.append(" <s>");
-			return new PieceOfCode(this);
-		}
-		
-		public CodeXGlueOutput token(String string) {
-			if (string.isEmpty())
-				return this;
-			
-			doIndentIfNeeded();
-			
-			if (mode != Mode.FULL)
-				builder.append(" ");
-			builder.append(string);
-			return this;
-		}
-
-		public CodeXGlueOutput stringToken(String str) {
-			doIndentIfNeeded();
-
-			if (mode != Mode.FULL)
-				builder.append(" ");
-			builder.append("\"");
-			builder.append(str);
-			builder.append("\"");
-			return this;
-		}
-
-		private void doIndentIfNeeded() {
-			int size = builder.length();
-			if (mode == Mode.FULL && size > 0) {
-				char last = builder.charAt(size - 1);
-				if (last == '\n') {
-					for(int i = 0; i < indent; i++)
-						builder.append("\t");					
-				}
-			}
-		}		
-	}
-	
-	private static class PieceOfCode implements AutoCloseable {
-
-		private CodeXGlueOutput output;
-
-		public PieceOfCode(CodeXGlueOutput output) {
-			this.output = output;
-		}
-
-		@Override
-		public void close() {
-			if (output.mode != Mode.FULL) {
-	 			output.builder.append(" ");
-				output.builder.append("</s>\n");
-			}
-		}
-	}
-	
-	private static class InvalidModelException extends RuntimeException {
-		private static final long serialVersionUID = 5490556461546321329L;
-		
-	}
-	
-	public static class JsonDatasetModel {
-		
-	}
 }
