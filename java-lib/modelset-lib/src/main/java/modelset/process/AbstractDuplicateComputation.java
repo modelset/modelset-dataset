@@ -27,13 +27,21 @@ public class AbstractDuplicateComputation<T> {
 		
 		
 		System.out.println("Loading files...");
+		int totalLoadedFiles = 0;
 		for (IFileInfo f : provider.getLocalFiles()) {
-			T r = loader.load(f.getFullFile());			
-			finder.addResource(f, r);
-			if (unloader != null)
-				unloader.accept(r);
+			try {
+				System.out.println("Loading " + f.getAbsolutePath());
+				T r = loader.load(f.getFullFile());			
+				finder.addResource(f, r);
+				if (unloader != null)
+					unloader.accept(r);
+				totalLoadedFiles++;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		
+		System.out.println("Total loaded files: " + totalLoadedFiles);
 		System.out.println("Computing duplicates...");
 		return finder.getDuplicates(T0, T1);		
 	}

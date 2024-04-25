@@ -17,6 +17,10 @@ public class CodeXGlueOutput {
 		this.mode = mode;
 	}
 
+	public Mode getMode() {
+		return mode;
+	}
+	
 	public CodeXGlueOutput w() {
 		if (mode == Mode.FULL)
 			builder.append(" ");
@@ -84,6 +88,11 @@ public class CodeXGlueOutput {
 			}
 		}
 	}		
+	
+	@Override
+	public String toString() {
+		return builder.toString();
+	}
 	
 
 	public static class PieceOfCode implements AutoCloseable {

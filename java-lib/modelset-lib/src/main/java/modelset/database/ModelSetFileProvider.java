@@ -1,7 +1,8 @@
-package modelset.process;
+package modelset.database;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,7 +12,6 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import mar.validation.IFileInfo;
 import mar.validation.IFileProvider;
 import modelset.metadata.AnnotationsValidator;
 import modelset.metadata.AnnotationsValidator.ParsedMetadata;
@@ -50,4 +50,12 @@ public class ModelSetFileProvider implements IFileProvider {
 		return "jdbc:sqlite:" + file.getAbsolutePath();
 	}	
 	
+	public static boolean isModelSetDb(File f) throws SQLException {
+		try(Connection connection = DriverManager.getConnection(getConnectionString(f))) {
+			DatabaseMetaData dmd = connection.getMetaData(); 
+			ResultSet rs = dmd.getTables(null, null, "metadata", new String[] { "TABLE" });
+			ResultSet rs2 = dmd.getTables(null, null, "repositories", new String[] { "TABLE" });		
+			return rs.next() && rs2.next();
+		}
+	}
 }

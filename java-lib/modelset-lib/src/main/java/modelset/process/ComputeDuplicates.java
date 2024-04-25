@@ -9,6 +9,7 @@ import mar.indexer.common.configuration.ModelLoader;
 import mar.validation.AnalyserRegistry;
 import mar.validation.IFileInfo;
 import mar.validation.ResourceAnalyser.Factory;
+import modelset.database.ModelSetFileProvider;
 
 public class ComputeDuplicates extends AbstractDuplicateComputation<Resource> {
 

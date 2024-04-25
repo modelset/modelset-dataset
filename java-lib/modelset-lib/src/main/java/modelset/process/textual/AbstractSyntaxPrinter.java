@@ -7,15 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 
-import mar.validation.AnalyserRegistry;
 import mar.validation.IFileInfo;
 import mar.validation.IFileProvider;
-import mar.validation.ResourceAnalyser.Factory;
+import modelset.database.ModelSetFileProvider;
 import modelset.process.DuplicationDatabase;
-import modelset.process.ModelSetFileProvider;
 import modelset.process.textual.CodeXGlueOutput.Mode;
 
 public abstract class AbstractSyntaxPrinter<T> {
@@ -90,6 +90,7 @@ public abstract class AbstractSyntaxPrinter<T> {
 		Map<String, Object> result = new HashMap<>();
 		
 		CodeXGlueOutput all = new CodeXGlueOutput(mode);
+		int processed = 0;
 		for (IFileInfo f : provider.getLocalFiles()) {
 			if (dupDb != null) {
 				if (! dupDb.isGroupRepresentive(f.getModelId()))
@@ -116,20 +117,39 @@ public abstract class AbstractSyntaxPrinter<T> {
 						all.merge(output);
 					}
 					
+					unload(t);
+				}
+				
+				processed++;
+				if (processed % 10 == 0) {
+					System.out.println("Writing intermediate results with " + processed + " files");
+					writeResult(outputFile, mode, result, all);
 				}
 			} catch (InvalidModelException e) {
-				System.out.println("Invalid model: " + f);
+				System.out.println("Invalid model: " + f.getAbsolutePath());
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}	
 				
 		
+		writeResult(outputFile, mode, result, all);
+	}
+
+	private void writeResult(File outputFile, Mode mode, Map<String, Object> result, CodeXGlueOutput all)
+			throws IOException, StreamWriteException, DatabindException {
 		if (mode == Mode.FULL) {
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.writer().writeValue(outputFile, result);
 		} else {
+			System.out.println("Writing to: " + outputFile);
 			Files.write(all.builder.toString().getBytes(), outputFile);
 		}
 	}	
+
+	protected void unload(T t) {
+		// To be implemented by subclasses
+	}
 
 	protected abstract List<T> getElements(File f) throws IOException;
 
@@ -139,11 +159,15 @@ public abstract class AbstractSyntaxPrinter<T> {
 	protected
 	static <T> T nonNull(T obj) {
 		if (obj == null)
-			throw new InvalidModelException();
+			throw new InvalidModelException("Null value");
 		return obj;
 	}
 
-	protected static class InvalidModelException extends RuntimeException {
+	public static class InvalidModelException extends RuntimeException {
+		public InvalidModelException(String string) {
+			super(string);
+		}
+
 		private static final long serialVersionUID = 5490556461546321329L;
 		
 	}

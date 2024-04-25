@@ -14,6 +14,7 @@ import mar.indexer.common.configuration.ModelLoader;
 import mar.validation.AnalyserRegistry;
 import mar.validation.IFileInfo;
 import mar.validation.ResourceAnalyser.Factory;
+import modelset.database.ModelSetFileProvider;
 import modelset.graph.Model2Graph;
 
 public class ComputeUMLGraph {

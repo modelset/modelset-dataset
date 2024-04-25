@@ -6,8 +6,8 @@ import java.io.IOException;
 import org.eclipse.emf.ecore.resource.Resource;
 
 import mar.indexer.common.configuration.ModelLoader;
+import modelset.database.ModelSetFileInfo;
 import modelset.metadata.AnnotationsValidator.ParsedMetadata;
-import modelset.process.ModelSetFileInfo;
 
 public class ModelSetModel {
 
