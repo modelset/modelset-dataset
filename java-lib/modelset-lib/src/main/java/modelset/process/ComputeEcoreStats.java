@@ -6,6 +6,7 @@ import mar.validation.AnalyserRegistry;
 import mar.validation.ISingleFileAnalyser;
 import mar.validation.ResourceAnalyser;
 import mar.validation.ResourceAnalyser.Factory;
+import modelset.database.ModelSetFileProvider;
 
 public class ComputeEcoreStats {
 

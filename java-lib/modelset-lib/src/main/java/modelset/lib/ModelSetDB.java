@@ -5,8 +5,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import modelset.process.ModelSetFileInfo;
-import modelset.process.ModelSetFileProvider;
+import modelset.database.ModelSetFileInfo;
+import modelset.database.ModelSetFileProvider;
 
 public class ModelSetDB {
 

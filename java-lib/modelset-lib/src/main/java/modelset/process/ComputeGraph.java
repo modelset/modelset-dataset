@@ -13,7 +13,9 @@ import org.eclipse.emf.ecore.resource.Resource;
 import mar.indexer.common.configuration.ModelLoader;
 import mar.validation.AnalyserRegistry;
 import mar.validation.IFileInfo;
+import mar.validation.IFileProvider;
 import mar.validation.ResourceAnalyser.Factory;
+import modelset.database.ModelSetFileProvider;
 import modelset.graph.Model2Graph;
 
 public class ComputeGraph {
@@ -24,20 +26,21 @@ public class ComputeGraph {
 		File outputFolder = new File("../../graph/repo-ecore-all");
 
 		ModelLoader loader = ModelLoader.DEFAULT;	
-		generateGraph(repoFolder, db, outputFolder, "ecore", loader);	
+		ModelSetFileProvider provider = new ModelSetFileProvider(db, repoFolder);
+		generateGraph(provider, outputFolder, "ecore", loader);	
 	}
 
-	private static void generateGraph(File repoFolder, File db, File outputFolder, String modelType, ModelLoader loader) throws SQLException, IOException {
+	public static void generateGraph(IFileProvider provider, File outputFolder, String modelType, ModelLoader loader) throws SQLException, IOException {
 		Factory factory = AnalyserRegistry.INSTANCE.getFactory(modelType);
 		factory.configureEnvironment();		
-		ModelSetFileProvider provider = new ModelSetFileProvider(db, repoFolder);
+
 		for (IFileInfo f : provider.getLocalFiles()) {
 			System.out.println(f.getRelativePath());
+			
 			Resource r = loader.load(f.getFullFile());
-
-			Model2Graph converter = new Model2Graph();
-			String content = converter.serializeGraphAsJson(r, new SimpleFilter());
-
+			String content = generateSingleGraph(r);
+			r.unload();
+			
 			java.nio.file.Path graphFolder = Paths.get(outputFolder.getAbsolutePath(), f.getRelativePath());
 			graphFolder.toFile().mkdirs();			
 			String fname = graphFolder.getName(graphFolder.getNameCount() - 1).toString();
@@ -45,6 +48,12 @@ public class ComputeGraph {
 			
 			IOUtils.write(content.getBytes(), new FileOutputStream(outputFile.toFile()));
 		}		
+	}
+
+	static String generateSingleGraph(Resource r) {
+		Model2Graph converter = new Model2Graph();
+		String content = converter.serializeGraphAsJson(r, new SimpleFilter());
+		return content;
 	}	
 	
 }
